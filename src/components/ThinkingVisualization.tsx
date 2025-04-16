@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +12,15 @@ const ThinkingVisualization: React.FC<ThinkingVisualizationProps> = ({
   thoughts,
   isThinking
 }) => {
+  const thoughtsEndRef = useRef<HTMLDivElement>(null);
+  
+  // Auto-scroll to the bottom when new thoughts are added
+  useEffect(() => {
+    if (thoughtsEndRef.current) {
+      thoughtsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [thoughts]);
+
   return (
     <div className="w-full h-full rounded-lg bg-agent-muted border border-agent-border p-4 overflow-hidden flex flex-col">
       <div className="flex items-center space-x-2 mb-3">
@@ -53,6 +62,8 @@ const ThinkingVisualization: React.FC<ThinkingVisualizationProps> = ({
             <span>Agent will show its thinking process here</span>
           </div>
         )}
+        
+        <div ref={thoughtsEndRef} />
       </div>
     </div>
   );

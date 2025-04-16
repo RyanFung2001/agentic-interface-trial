@@ -1,11 +1,12 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import ChatMessage, { ChatMessageProps } from './ChatMessage';
 import ChatInput from './ChatInput';
 import ThinkingVisualization from './ThinkingVisualization';
 import ExecutionVisualization, { ExecutionStep } from './ExecutionVisualization';
 import AgentHeader from './AgentHeader';
 import { toast } from '../hooks/use-toast';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const AgentInterface: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessageProps[]>([
@@ -16,29 +17,203 @@ const AgentInterface: React.FC = () => {
   const [isThinking, setIsThinking] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
   const [isProcessingQuery, setIsProcessingQuery] = useState(false);
+  const [currentScenario, setCurrentScenario] = useState<string | null>(null);
+  const [scenarioStep, setScenarioStep] = useState(0);
+  const thoughtTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const executionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleSendMessage = useCallback((message: string) => {
-    // Add user message
-    setMessages(prev => [...prev, { role: 'user', content: message }]);
+  // Clear any running timeouts when component unmounts
+  useEffect(() => {
+    return () => {
+      if (thoughtTimeoutRef.current) clearTimeout(thoughtTimeoutRef.current);
+      if (executionTimeoutRef.current) clearTimeout(executionTimeoutRef.current);
+    };
+  }, []);
+
+  const runHairCareScenario = useCallback(() => {
+    setCurrentScenario('haircare');
+    setScenarioStep(1);
     setIsProcessingQuery(true);
-    
-    // Simulate agent thinking
     setIsThinking(true);
     setThoughts([]);
     
-    // Simulate thought process
-    const thoughtSequence = [
-      "Analyzing user query: \"" + message + "\"",
-      "Identifying key components and user intent...",
-      "This looks like a task that requires code execution...",
-      "Planning the best approach to solve this problem...",
-      "I'll need to break this down into steps..."
+    // Step 1: Initial agent thoughts
+    const initialThoughts = [
+      "Analyzing user request about hair care product classification...",
+      "This requires data analysis based on ingredients, descriptions, product hierarchy...",
+      "I need to check if we have relevant data available in our system.",
+      "Let me execute a data agent to search for relevant datasets."
     ];
     
     let thoughtIndex = 0;
     const thoughtInterval = setInterval(() => {
-      if (thoughtIndex < thoughtSequence.length) {
-        setThoughts(prev => [...prev, thoughtSequence[thoughtIndex]]);
+      if (thoughtIndex < initialThoughts.length) {
+        setThoughts(prev => [...prev, initialThoughts[thoughtIndex]]);
+        thoughtIndex++;
+      } else {
+        clearInterval(thoughtInterval);
+        
+        // After thinking, start execution
+        setTimeout(() => {
+          executeDataQuery();
+        }, 1000);
+      }
+    }, 1500);
+  }, []);
+
+  const executeDataQuery = useCallback(() => {
+    setIsExecuting(true);
+    setExecutionSteps([]);
+    
+    // Simulate database query execution
+    setTimeout(() => {
+      setExecutionSteps([
+        {
+          type: 'code',
+          content: 'import pandas as pd\n\n# Connect to product database\nfrom db_connector import DBConnector\n\ndb = DBConnector()\nquery = """\n  SELECT product_name, ingredients, description, category \n  FROM products \n  WHERE category LIKE \'%hair%\' \n  LIMIT 100\n"""\n\nresults = db.execute_query(query)\ndf = pd.DataFrame(results)\nprint(df.head())',
+          status: 'running'
+        }
+      ]);
+      
+      // Show query results
+      setTimeout(() => {
+        setExecutionSteps(prev => [
+          {
+            ...prev[0],
+            status: 'completed',
+            result: 'Database query executed. No relevant hair care product data found in primary database.'
+          }
+        ]);
+        
+        // Now back to agent thoughts about no data found
+        thoughtTimeoutRef.current = setTimeout(() => {
+          setIsExecuting(false);
+          setIsThinking(true);
+          setScenarioStep(2);
+          
+          const noDataThoughts = [
+            "No direct hair care product data found in our primary database.",
+            "Let me check the AI team's insight bank which might contain previous analyses.",
+            "Querying the AI team blob storage for any relevant classification or tagging results."
+          ];
+          
+          let thoughtIndex = 0;
+          const thoughtInterval = setInterval(() => {
+            if (thoughtIndex < noDataThoughts.length) {
+              setThoughts(prev => [...prev, noDataThoughts[thoughtIndex]]);
+              thoughtIndex++;
+            } else {
+              clearInterval(thoughtInterval);
+              
+              // Execute blob storage query
+              executionTimeoutRef.current = setTimeout(() => {
+                setIsThinking(false);
+                queryBlobStorage();
+              }, 1000);
+            }
+          }, 1500);
+        }, 2000);
+      }, 2500);
+    }, 1000);
+  }, []);
+
+  const queryBlobStorage = useCallback(() => {
+    setIsExecuting(true);
+    setExecutionSteps([]);
+    
+    // Show blob storage query
+    setTimeout(() => {
+      setExecutionSteps([
+        {
+          type: 'terminal',
+          content: 'az storage blob list --container-name ai-team-insights --account-name aiteamstore --prefix "haircare/" --query "[].name" -o tsv | grep "classification"',
+          status: 'running'
+        }
+      ]);
+      
+      // Show blob query results
+      setTimeout(() => {
+        setExecutionSteps(prev => [
+          {
+            ...prev[0],
+            status: 'completed',
+            result: 'haircare/2024-03-15_hair_product_classification.parquet\nhaircare/2024-01-20_ingredient_classification.parquet'
+          },
+          {
+            type: 'code',
+            content: 'import pandas as pd\n\n# Load the found classification data\ndf_hair = pd.read_parquet("haircare/2024-03-15_hair_product_classification.parquet")\nprint(df_hair.head())',
+            status: 'running'
+          }
+        ]);
+        
+        // Show dataframe results
+        setTimeout(() => {
+          setExecutionSteps(prev => [
+            ...prev.slice(0, 1),
+            {
+              ...prev[1],
+              status: 'completed',
+              result: '   product_id              product_name  \\\n0   HAR0012       Moisture Shampoo   \n1   HAR0013    Volume Boost Conditioner   \n2   HAR0014       Repair Hair Mask   \n3   HAR0015     Anti-Frizz Serum   \n4   HAR0016     Curl Defining Cream   \n\n                                        ingredients                            tags  \n0  Water, Sodium Lauryl Sulfate, Cocamidopropyl...  [moisturizing, gentle, sulfate-free]  \n1  Water, Cetearyl Alcohol, Behentrimonium Chlo...  [volumizing, strengthening, protein-rich]  \n2  Water, Cetearyl Alcohol, Cetyl Esters, Glycerin  [repairing, deep conditioning, damaged hair]  \n3  Cyclopentasiloxane, Dimethiconol, Argan Oil,...  [smoothing, anti-humidity, silicone-based]  \n4  Water, Glycerin, Polyquaternium-11, Jojoba O...  [curl enhancing, defining, medium hold]'
+            }
+          ]);
+          
+          // Now back to agent thoughts about found data
+          setTimeout(() => {
+            setIsExecuting(false);
+            setIsThinking(true);
+            setScenarioStep(3);
+            
+            const dataFoundThoughts = [
+              "I found a previous hair care product classification dataset in the AI team's storage.",
+              "The dataset contains product names, ingredients, and tags that categorize each product.",
+              "This looks exactly like what we need for the analysis.",
+              "Would you like to use these results for the analysis you requested?"
+            ];
+            
+            let thoughtIndex = 0;
+            const thoughtInterval = setInterval(() => {
+              if (thoughtIndex < dataFoundThoughts.length) {
+                setThoughts(prev => [...prev, dataFoundThoughts[thoughtIndex]]);
+                thoughtIndex++;
+              } else {
+                clearInterval(thoughtInterval);
+                
+                setIsThinking(false);
+                // Add agent message asking for confirmation
+                setMessages(prev => [
+                  ...prev,
+                  { 
+                    role: 'agent', 
+                    content: "I found an existing hair care product classification dataset in our AI team's storage. It contains product IDs, names, ingredients, and tags that categorize each product based on their properties and functions. Would you like me to use this dataset for further analysis?" 
+                  }
+                ]);
+                setIsProcessingQuery(false);
+              }
+            }, 1500);
+          }, 2000);
+        }, 2500);
+      }, 2500);
+    }, 1000);
+  }, []);
+
+  const processYesResponse = useCallback(() => {
+    setIsProcessingQuery(true);
+    setIsThinking(true);
+    setThoughts([]);
+    setScenarioStep(4);
+    
+    const analyticsThoughts = [
+      "Great, I'll use the existing classification data for analysis.",
+      "Let me query our analytics agent and CRM agent to gather additional insights.",
+      "The analytics agent can provide usage patterns and performance metrics.",
+      "The CRM agent can provide customer feedback and satisfaction data.",
+      "Combining these insights with the classification data will provide actionable recommendations."
+    ];
+    
+    let thoughtIndex = 0;
+    const thoughtInterval = setInterval(() => {
+      if (thoughtIndex < analyticsThoughts.length) {
+        setThoughts(prev => [...prev, analyticsThoughts[thoughtIndex]]);
         thoughtIndex++;
       } else {
         clearInterval(thoughtInterval);
@@ -46,90 +221,190 @@ const AgentInterface: React.FC = () => {
         // After thinking, start execution
         setTimeout(() => {
           setIsThinking(false);
-          simulateExecution(message);
+          runComplexAnalysis();
         }, 1000);
       }
     }, 1500);
   }, []);
-  
-  const simulateExecution = useCallback((query: string) => {
+
+  const runComplexAnalysis = useCallback(() => {
     setIsExecuting(true);
     setExecutionSteps([]);
     
-    // Simulate execution steps
+    // Show complex analysis with multiple steps
     setTimeout(() => {
       setExecutionSteps([
         {
           type: 'code',
-          content: 'import pandas as pd\nimport numpy as np\n\n# Loading data for analysis\ndf = pd.read_csv("data.csv")\nprint(df.head())',
+          content: '# Query Analytics Agent\nfrom agents import AnalyticsAgent\n\nanalytics = AnalyticsAgent()\nusage_data = analytics.get_product_usage_metrics(product_ids=list(df_hair["product_id"]))\n\n# Merge with classification data\nmerged_df = pd.merge(df_hair, usage_data, on="product_id")\nprint("Data merged with analytics successfully")',
           status: 'running'
         }
       ]);
       
+      // Show progress
       setTimeout(() => {
         setExecutionSteps(prev => [
           {
             ...prev[0],
             status: 'completed',
-            result: '   Column1  Column2  Column3\n0        1        2        3\n1        4        5        6\n2        7        8        9'
+            result: 'Data merged with analytics successfully\nProcessing 243 products with usage metrics...'
           },
           {
             type: 'terminal',
-            content: 'python analyze.py --input data.csv --output results.json',
+            content: 'crm-agent fetch --customer-feedback --product-ids HAR0012,HAR0013,HAR0014,HAR0015,HAR0016 --sentiment-analysis',
             status: 'running'
           }
         ]);
         
+        // Show more progress
         setTimeout(() => {
           setExecutionSteps(prev => [
             ...prev.slice(0, 1),
             {
               ...prev[1],
               status: 'completed',
-              result: 'Analysis complete. Results saved to results.json'
+              result: 'Customer feedback retrieved.\nSentiment analysis complete.\nGenerating cross-correlation matrix between ingredients and customer satisfaction...'
             },
             {
-              type: 'web',
-              content: 'Searching for relevant documentation...',
+              type: 'code',
+              content: 'import matplotlib.pyplot as plt\nimport seaborn as sns\n\n# Analyzing ingredient correlations\ningredient_corr = data_processor.analyze_ingredient_correlations(merged_df)\n\n# Generating market segmentation\nsegments = market_analyzer.generate_segments(merged_df, n_clusters=5)\n\n# Preparing visualization\nplt.figure(figsize=(12, 8))\nsns.heatmap(ingredient_corr, annot=True, cmap="coolwarm")\nplt.title("Ingredient to Performance Correlation")\nplt.tight_layout()\nplt.savefig("ingredient_correlation.png")\n\nprint("Analysis complete.")',
               status: 'running'
             }
           ]);
           
+          // Final analysis step with visualizations
           setTimeout(() => {
+            const chartData = [
+              { name: 'Moisturizing', satisfaction: 4.2, repurchase: 68, review_count: 1245 },
+              { name: 'Volumizing', satisfaction: 3.8, repurchase: 52, review_count: 876 },
+              { name: 'Repairing', satisfaction: 4.5, repurchase: 72, review_count: 1542 },
+              { name: 'Anti-Frizz', satisfaction: 4.0, repurchase: 65, review_count: 1120 },
+              { name: 'Curl Define', satisfaction: 4.3, repurchase: 70, review_count: 980 },
+            ];
+            
             setExecutionSteps(prev => [
               ...prev.slice(0, 2),
               {
                 ...prev[2],
                 status: 'completed',
-                result: 'Found 3 relevant resources:\n1. Documentation for pandas\n2. API reference for numpy\n3. Stack Overflow thread with similar query'
+                result: 'Analysis complete.\nGenerated 3 key visualizations and insight report.\n\nProduct Category Performance Metrics:'
               }
             ]);
             
-            // Finish the execution
+            // Generate final report
             setTimeout(() => {
               setIsExecuting(false);
-              
-              // Add agent response
               setMessages(prev => [
-                ...prev, 
+                ...prev,
                 { 
                   role: 'agent', 
-                  content: `I've analyzed your request: "${query}"\n\nI ran a Python script to analyze the data, processed it through a terminal command, and found relevant documentation. The analysis suggests that the data follows the pattern you were asking about. Would you like me to explain the results in more detail or proceed with a different approach?` 
+                  content: `# Hair Care Product Analysis Report
+
+## Executive Summary
+Based on our analysis of the hair care product classification dataset, combined with analytics and customer feedback, we've identified key trends and opportunities.
+
+## Key Findings
+
+1. **Product Category Performance**
+   - **Highest Satisfaction**: Repairing products (4.5/5)
+   - **Highest Repurchase Rate**: Repairing products (72%)
+   - **Most Reviewed**: Repairing products (1,542 reviews)
+
+2. **Ingredient Analysis**
+   - Products containing natural oils showed 23% higher satisfaction scores
+   - Sulfate-free formulations had 18% higher repurchase rates
+   - Protein-rich products performed best in the volumizing category
+
+3. **Market Gaps & Opportunities**
+   - Underserved segment: Products for combination hair types
+   - Ingredient opportunity: Plant-based protein alternatives
+   - Format gap: Waterless formulations
+
+## Recommendations
+
+1. **Product Development Focus Areas**
+   - Develop repairing products with natural oils and protein
+   - Expand sulfate-free options across all categories
+   - Create hybrid products addressing multiple hair concerns
+
+2. **Marketing Strategies**
+   - Highlight natural ingredients in product packaging and promotion
+   - Target customers with combination hair types
+   - Emphasize sustainability for waterless formulations
+
+Would you like a deeper analysis of any specific area from this report?` 
                 }
               ]);
-              
               setIsProcessingQuery(false);
+              setCurrentScenario(null);
+              setScenarioStep(0);
               
               toast({
-                title: "Task completed",
-                description: "The agent has finished processing your request",
+                title: "Analysis complete",
+                description: "Hair care product analysis report generated",
               });
-            }, 1000);
-          }, 2000);
-        }, 2000);
-      }, 2000);
+            }, 3000);
+          }, 2500);
+        }, 2500);
+      }, 2500);
     }, 1000);
   }, []);
+
+  const handleSendMessage = useCallback((message: string) => {
+    // Add user message
+    setMessages(prev => [...prev, { role: 'user', content: message }]);
+    
+    if (message.toLowerCase().includes('classify hair care products')) {
+      runHairCareScenario();
+    } else if (message.toLowerCase() === 'yes' && currentScenario === 'haircare' && scenarioStep === 3) {
+      // Handle "yes" to use the found data
+      processYesResponse();
+    } else {
+      // Default handling for other messages
+      setIsProcessingQuery(true);
+      setIsThinking(true);
+      setThoughts([]);
+      
+      // Simulate thought process
+      const thoughtSequence = [
+        "Analyzing user query: \"" + message + "\"",
+        "Identifying key components and user intent...",
+        "This looks like a general query. Let me process it...",
+        "Planning the best approach to respond..."
+      ];
+      
+      let thoughtIndex = 0;
+      const thoughtInterval = setInterval(() => {
+        if (thoughtIndex < thoughtSequence.length) {
+          setThoughts(prev => [...prev, thoughtSequence[thoughtIndex]]);
+          thoughtIndex++;
+        } else {
+          clearInterval(thoughtInterval);
+          
+          // After thinking, provide a response
+          setTimeout(() => {
+            setIsThinking(false);
+            setMessages(prev => [
+              ...prev, 
+              { 
+                role: 'agent', 
+                content: `I've processed your request: "${message}". 
+                
+I can help you with various types of analyses, such as:
+- Product classification and analysis
+- Market research and trends
+- Data pattern recognition
+- Competitive insights
+
+Would you like to try a specific type of analysis? You can try "Classify Hair Care Products based on ingredient, description, product hierarchy, and perform analysis" as an example.` 
+              }
+            ]);
+            setIsProcessingQuery(false);
+          }, 1000);
+        }
+      }, 1000);
+    }
+  }, [runHairCareScenario, processYesResponse, currentScenario, scenarioStep]);
   
   const handleReset = useCallback(() => {
     setMessages([
@@ -140,6 +415,8 @@ const AgentInterface: React.FC = () => {
     setIsThinking(false);
     setIsExecuting(false);
     setIsProcessingQuery(false);
+    setCurrentScenario(null);
+    setScenarioStep(0);
     
     toast({
       title: "Session reset",
