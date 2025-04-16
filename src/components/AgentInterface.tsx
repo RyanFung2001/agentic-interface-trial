@@ -1,11 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import ChatMessage, { ChatMessageProps } from './ChatMessage';
 import ChatInput from './ChatInput';
 import ThinkingVisualization from './ThinkingVisualization';
 import ExecutionVisualization, { ExecutionStep } from './ExecutionVisualization';
 import AgentHeader from './AgentHeader';
-import { Separator } from "@/components/ui/separator";
 import { toast } from '../hooks/use-toast';
 
 const AgentInterface: React.FC = () => {
@@ -18,7 +17,7 @@ const AgentInterface: React.FC = () => {
   const [isExecuting, setIsExecuting] = useState(false);
   const [isProcessingQuery, setIsProcessingQuery] = useState(false);
 
-  const handleSendMessage = (message: string) => {
+  const handleSendMessage = useCallback((message: string) => {
     // Add user message
     setMessages(prev => [...prev, { role: 'user', content: message }]);
     setIsProcessingQuery(true);
@@ -51,9 +50,9 @@ const AgentInterface: React.FC = () => {
         }, 1000);
       }
     }, 1500);
-  };
+  }, []);
   
-  const simulateExecution = (query: string) => {
+  const simulateExecution = useCallback((query: string) => {
     setIsExecuting(true);
     setExecutionSteps([]);
     
@@ -130,9 +129,9 @@ const AgentInterface: React.FC = () => {
         }, 2000);
       }, 2000);
     }, 1000);
-  };
+  }, []);
   
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setMessages([
       { role: 'agent', content: 'Hello! I am your agentic AI assistant. How can I help you today?' }
     ]);
@@ -146,7 +145,7 @@ const AgentInterface: React.FC = () => {
       title: "Session reset",
       description: "All conversations and processes have been cleared",
     });
-  };
+  }, []);
 
   return (
     <div className="flex flex-col h-screen bg-agent-background text-agent-foreground">
@@ -154,7 +153,7 @@ const AgentInterface: React.FC = () => {
       
       <div className="flex flex-1 overflow-hidden">
         {/* Left panel: Chat */}
-        <div className="flex flex-col w-full lg:w-1/2 border-r border-agent-border">
+        <div className="flex flex-col w-full lg:w-2/5 border-r border-agent-border">
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
             {messages.map((message, index) => (
               <ChatMessage 
@@ -174,7 +173,7 @@ const AgentInterface: React.FC = () => {
         </div>
         
         {/* Right panel: Agent processes */}
-        <div className="hidden lg:flex flex-col w-1/2">
+        <div className="hidden lg:flex flex-col w-3/5">
           <div className="flex-1 overflow-hidden">
             <div className="grid grid-rows-2 h-full">
               {/* Thinking visualization */}

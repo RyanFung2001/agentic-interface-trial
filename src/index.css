@@ -34,6 +34,17 @@
     --ring: 224 76% 48%;
 
     --radius: 0.5rem;
+    
+    /* Agent-specific colors */
+    --agent-background: 222 47% 11%;
+    --agent-foreground: 210 40% 98%;
+    --agent-muted: 217 33% 18%;
+    --agent-primary: 244 76% 58%;
+    --agent-secondary: 265 84% 73%;
+    --agent-accent: 188 92% 53%;
+    --agent-border: 217 33% 26%;
+    --agent-thinking-bg: 217 33% 15%;
+    --agent-execution-bg: 217 33% 15%;
   }
 }
 
@@ -56,4 +67,73 @@
   .thinking-dot {
     @apply inline-block h-2 w-2 rounded-full bg-agent-accent;
   }
+}
+
+/* Animation utilities */
+@keyframes thinking-dot-1 {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes thinking-dot-2 {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes thinking-dot-3 {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-thinking-dot-1 {
+  animation: thinking-dot-1 1.4s infinite 0.2s;
+}
+
+.animate-thinking-dot-2 {
+  animation: thinking-dot-2 1.4s infinite 0.4s;
+}
+
+.animate-thinking-dot-3 {
+  animation: thinking-dot-3 1.4s infinite 0.6s;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+.animate-fade-in-down {
+  animation: fade-in-down 0.3s ease-out;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s infinite;
 }

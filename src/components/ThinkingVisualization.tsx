@@ -13,7 +13,7 @@ const ThinkingVisualization: React.FC<ThinkingVisualizationProps> = ({
   isThinking
 }) => {
   return (
-    <div className="w-full h-full rounded-lg bg-agent-thinking-bg border border-agent-border p-4 overflow-hidden flex flex-col">
+    <div className="w-full h-full rounded-lg bg-agent-muted border border-agent-border p-4 overflow-hidden flex flex-col">
       <div className="flex items-center space-x-2 mb-3">
         <Brain className="h-5 w-5 text-agent-primary" />
         <h3 className="font-medium">Agent Thoughts</h3>
