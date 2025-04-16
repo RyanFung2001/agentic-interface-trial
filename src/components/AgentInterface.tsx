@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import ChatMessage, { ChatMessageProps } from './ChatMessage';
 import ChatInput from './ChatInput';
@@ -22,7 +21,6 @@ const AgentInterface: React.FC = () => {
   const thoughtTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const executionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Clear any running timeouts when component unmounts
   useEffect(() => {
     return () => {
       if (thoughtTimeoutRef.current) clearTimeout(thoughtTimeoutRef.current);
@@ -37,7 +35,6 @@ const AgentInterface: React.FC = () => {
     setIsThinking(true);
     setThoughts([]);
     
-    // Step 1: Initial agent thoughts
     const initialThoughts = [
       "Analyzing user request about hair care product classification...",
       "This requires data analysis based on ingredients, descriptions, product hierarchy...",
@@ -53,7 +50,6 @@ const AgentInterface: React.FC = () => {
       } else {
         clearInterval(thoughtInterval);
         
-        // After thinking, start execution
         setTimeout(() => {
           executeDataQuery();
         }, 1000);
@@ -65,7 +61,6 @@ const AgentInterface: React.FC = () => {
     setIsExecuting(true);
     setExecutionSteps([]);
     
-    // Simulate database query execution
     setTimeout(() => {
       setExecutionSteps([
         {
@@ -75,7 +70,6 @@ const AgentInterface: React.FC = () => {
         }
       ]);
       
-      // Show query results
       setTimeout(() => {
         setExecutionSteps(prev => [
           {
@@ -85,7 +79,6 @@ const AgentInterface: React.FC = () => {
           }
         ]);
         
-        // Now back to agent thoughts about no data found
         thoughtTimeoutRef.current = setTimeout(() => {
           setIsExecuting(false);
           setIsThinking(true);
@@ -105,7 +98,6 @@ const AgentInterface: React.FC = () => {
             } else {
               clearInterval(thoughtInterval);
               
-              // Execute blob storage query
               executionTimeoutRef.current = setTimeout(() => {
                 setIsThinking(false);
                 queryBlobStorage();
@@ -121,7 +113,6 @@ const AgentInterface: React.FC = () => {
     setIsExecuting(true);
     setExecutionSteps([]);
     
-    // Show blob storage query
     setTimeout(() => {
       setExecutionSteps([
         {
@@ -131,7 +122,6 @@ const AgentInterface: React.FC = () => {
         }
       ]);
       
-      // Show blob query results
       setTimeout(() => {
         setExecutionSteps(prev => [
           {
@@ -146,7 +136,6 @@ const AgentInterface: React.FC = () => {
           }
         ]);
         
-        // Show dataframe results
         setTimeout(() => {
           setExecutionSteps(prev => [
             ...prev.slice(0, 1),
@@ -157,7 +146,6 @@ const AgentInterface: React.FC = () => {
             }
           ]);
           
-          // Now back to agent thoughts about found data
           setTimeout(() => {
             setIsExecuting(false);
             setIsThinking(true);
@@ -179,7 +167,6 @@ const AgentInterface: React.FC = () => {
                 clearInterval(thoughtInterval);
                 
                 setIsThinking(false);
-                // Add agent message asking for confirmation
                 setMessages(prev => [
                   ...prev,
                   { 
@@ -218,11 +205,8 @@ const AgentInterface: React.FC = () => {
       } else {
         clearInterval(thoughtInterval);
         
-        // After thinking, start execution
-        setTimeout(() => {
-          setIsThinking(false);
-          runComplexAnalysis();
-        }, 1000);
+        setIsThinking(false);
+        runComplexAnalysis();
       }
     }, 1500);
   }, []);
@@ -231,7 +215,6 @@ const AgentInterface: React.FC = () => {
     setIsExecuting(true);
     setExecutionSteps([]);
     
-    // Show complex analysis with multiple steps
     setTimeout(() => {
       setExecutionSteps([
         {
@@ -241,7 +224,6 @@ const AgentInterface: React.FC = () => {
         }
       ]);
       
-      // Show progress
       setTimeout(() => {
         setExecutionSteps(prev => [
           {
@@ -256,7 +238,6 @@ const AgentInterface: React.FC = () => {
           }
         ]);
         
-        // Show more progress
         setTimeout(() => {
           setExecutionSteps(prev => [
             ...prev.slice(0, 1),
@@ -272,7 +253,6 @@ const AgentInterface: React.FC = () => {
             }
           ]);
           
-          // Final analysis step with visualizations
           setTimeout(() => {
             const chartData = [
               { name: 'Moisturizing', satisfaction: 4.2, repurchase: 68, review_count: 1245 },
@@ -291,7 +271,6 @@ const AgentInterface: React.FC = () => {
               }
             ]);
             
-            // Generate final report
             setTimeout(() => {
               setIsExecuting(false);
               setMessages(prev => [
@@ -335,6 +314,17 @@ Based on our analysis of the hair care product classification dataset, combined 
 Would you like a deeper analysis of any specific area from this report?` 
                 }
               ]);
+              
+              setTimeout(() => {
+                setMessages(prev => [
+                  ...prev,
+                  { 
+                    role: 'agent', 
+                    content: "**Demo End**: This concludes the demo of the AI agent interface. You can reset the conversation using the button in the header, or continue asking questions." 
+                  }
+                ]);
+              }, 2000);
+              
               setIsProcessingQuery(false);
               setCurrentScenario(null);
               setScenarioStep(0);
@@ -351,21 +341,17 @@ Would you like a deeper analysis of any specific area from this report?`
   }, []);
 
   const handleSendMessage = useCallback((message: string) => {
-    // Add user message
     setMessages(prev => [...prev, { role: 'user', content: message }]);
     
     if (message.toLowerCase().includes('classify hair care products')) {
       runHairCareScenario();
     } else if (message.toLowerCase() === 'yes' && currentScenario === 'haircare' && scenarioStep === 3) {
-      // Handle "yes" to use the found data
       processYesResponse();
     } else {
-      // Default handling for other messages
       setIsProcessingQuery(true);
       setIsThinking(true);
       setThoughts([]);
       
-      // Simulate thought process
       const thoughtSequence = [
         "Analyzing user query: \"" + message + "\"",
         "Identifying key components and user intent...",
@@ -381,7 +367,6 @@ Would you like a deeper analysis of any specific area from this report?`
         } else {
           clearInterval(thoughtInterval);
           
-          // After thinking, provide a response
           setTimeout(() => {
             setIsThinking(false);
             setMessages(prev => [
@@ -429,7 +414,6 @@ Would you like to try a specific type of analysis? You can try "Classify Hair Ca
       <AgentHeader onReset={handleReset} />
       
       <div className="flex flex-1 overflow-hidden">
-        {/* Left panel: Chat */}
         <div className="flex flex-col w-full lg:w-2/5 border-r border-agent-border">
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
             {messages.map((message, index) => (
@@ -449,11 +433,9 @@ Would you like to try a specific type of analysis? You can try "Classify Hair Ca
           </div>
         </div>
         
-        {/* Right panel: Agent processes */}
         <div className="hidden lg:flex flex-col w-3/5">
           <div className="flex-1 overflow-hidden">
             <div className="grid grid-rows-2 h-full">
-              {/* Thinking visualization */}
               <div className="p-4">
                 <ThinkingVisualization 
                   thoughts={thoughts}
@@ -461,7 +443,6 @@ Would you like to try a specific type of analysis? You can try "Classify Hair Ca
                 />
               </div>
               
-              {/* Execution visualization */}
               <div className="p-4 pt-0">
                 <ExecutionVisualization 
                   steps={executionSteps}

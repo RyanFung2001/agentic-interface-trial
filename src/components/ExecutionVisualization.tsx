@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Code, Terminal, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -21,6 +21,15 @@ const ExecutionVisualization: React.FC<ExecutionVisualizationProps> = ({
   steps,
   isExecuting 
 }) => {
+  const executionEndRef = useRef<HTMLDivElement>(null);
+  
+  // Auto-scroll to the bottom when new execution steps are added
+  useEffect(() => {
+    if (executionEndRef.current) {
+      executionEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [steps]);
+  
   const getIconByType = (type: ExecutionType) => {
     switch(type) {
       case 'code': return <Code className="h-4 w-4" />;
@@ -102,6 +111,8 @@ const ExecutionVisualization: React.FC<ExecutionVisualizationProps> = ({
             <span>Agent will show task execution here</span>
           </div>
         )}
+        
+        <div ref={executionEndRef} />
       </div>
     </div>
   );

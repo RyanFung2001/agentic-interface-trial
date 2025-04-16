@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ThinkingVisualizationProps {
   thoughts: string[];
