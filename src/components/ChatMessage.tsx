@@ -47,7 +47,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           <span className="ml-2 text-xs text-gray-400">{timestamp}</span>
         </div>
         <div className={cn(
-          "rounded-lg p-3 text-sm",
+          "rounded-lg p-3 text-sm markdown-content",
           isUser ? "bg-agent-muted text-agent-foreground" : "bg-agent-primary bg-opacity-20 text-agent-foreground"
         )}>
           <ReactMarkdown remarkPlugins={[remarkBreaks]}>{content}</ReactMarkdown>
