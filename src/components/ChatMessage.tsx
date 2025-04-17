@@ -1,18 +1,8 @@
-
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from '@/lib/utils';
-
-// We'll try to import ReactMarkdown, but have a fallback if it fails
-let ReactMarkdown: any;
-let remarkBreaks: any;
-
-try {
-  ReactMarkdown = require('react-markdown');
-  remarkBreaks = require('remark-breaks');
-} catch (err) {
-  console.error('Error loading markdown dependencies:', err);
-}
+import ReactMarkdown from 'react-markdown';
+import remarkBreaks from 'remark-breaks';
 
 export type MessageRole = 'user' | 'agent';
 
@@ -60,12 +50,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           "rounded-lg p-3 text-sm markdown-content",
           isUser ? "bg-agent-muted text-agent-foreground" : "bg-agent-primary bg-opacity-20 text-agent-foreground"
         )}>
-          {ReactMarkdown ? (
-            <ReactMarkdown remarkPlugins={[remarkBreaks]}>{content}</ReactMarkdown>
-          ) : (
-            // Fallback to basic text rendering if markdown libraries aren't available
-            <div className="whitespace-pre-wrap">{content}</div>
-          )}
+          <ReactMarkdown remarkPlugins={[remarkBreaks]}>{content}</ReactMarkdown>
         </div>
       </div>
     </div>
