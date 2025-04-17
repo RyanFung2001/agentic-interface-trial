@@ -9,7 +9,7 @@ import { toast } from '../hooks/use-toast';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const AgentInterface: React.FC = () => {
-  const messagesEndRef = useRef<HTMLDivElement>(null); // Moved inside component
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const [messages, setMessages] = useState<ChatMessageProps[]>([
     { role: 'agent', content: 'Hello! I am your agentic AI assistant. How can I help you today?' }
@@ -37,7 +37,7 @@ const AgentInterface: React.FC = () => {
     setIsThinking(true);
     setThoughts([]);
     
-    const initialThoughts = [
+    const initialThoughts: Thought[] = [
       { type: 'general', content: "Analyzing user request about hair care product classification..." },
       { type: 'general', content: "This requires data analysis based on ingredients, descriptions, product hierarchy..." },
       { type: 'general', content: "I need to check if we have relevant data available in our system." },
@@ -86,7 +86,7 @@ const AgentInterface: React.FC = () => {
           setIsThinking(true);
           setScenarioStep(2);
           
-          const noDataThoughts = [
+          const noDataThoughts: Thought[] = [
             { type: 'data', content: "No direct hair care product data found in our primary database." },
             { type: 'general', content: "Let me check the AI team's insight bank which might contain previous analyses." },
             { type: 'data', content: "Querying the AI team blob storage for any relevant classification or tagging results." }
@@ -153,7 +153,7 @@ const AgentInterface: React.FC = () => {
             setIsThinking(true);
             setScenarioStep(3);
             
-            const dataFoundThoughts = [
+            const dataFoundThoughts: Thought[] = [
               { type: 'data', content: "I found a previous hair care product classification dataset in the AI team's storage." },
               { type: 'data', content: "The dataset contains product names, ingredients, and tags that categorize each product." },
               { type: 'general', content: "This looks exactly like what we need for the analysis." },
@@ -191,7 +191,7 @@ const AgentInterface: React.FC = () => {
     setThoughts([]);
     setScenarioStep(4);
     
-    const analyticsThoughts = [
+    const analyticsThoughts: Thought[] = [
       { type: 'general', content: "Great, I'll use the existing classification data for analysis." },
       { type: 'general', content: "Let me query our analytics agent and CRM agent to gather additional insights." },
       { type: 'analytics', content: "The analytics agent can provide usage patterns and performance metrics." },
@@ -354,7 +354,7 @@ Would you like a deeper analysis of any specific area from this report?`
       setIsThinking(true);
       setThoughts([]);
       
-      const thoughtSequence = [
+      const thoughtSequence: Thought[] = [
         { type: 'general', content: "Analyzing user query: \"" + message + "\"" },
         { type: 'general', content: "Identifying key components and user intent..." },
         { type: 'general', content: "This looks like a general query. Let me process it..." },

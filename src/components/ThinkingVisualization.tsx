@@ -1,8 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
-import { Brain, Database, Users } from 'lucide-react';
+import { Brain, Database, Users, BarChart } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 export type ThoughtType = 'general' | 'data' | 'crm' | 'analytics';
 
@@ -37,7 +36,7 @@ const ThinkingVisualization: React.FC<ThinkingVisualizationProps> = ({
       case 'crm':
         return <Users className="h-4 w-4 text-purple-400" />;
       case 'analytics':
-        return <span className="text-sm">📊</span>;
+        return <BarChart className="h-4 w-4 text-green-400" />;
       case 'general':
       default:
         return <Brain className="h-4 w-4 text-agent-primary" />;
