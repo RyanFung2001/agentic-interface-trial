@@ -16,7 +16,7 @@ interface ThinkingVisualizationProps {
 }
 
 const ThinkingVisualization: React.FC<ThinkingVisualizationProps> = ({ 
-  thoughts,
+  thoughts = [], // Set default value to avoid undefined
   isThinking
 }) => {
   const thoughtsEndRef = useRef<HTMLDivElement>(null);
@@ -88,35 +88,39 @@ const ThinkingVisualization: React.FC<ThinkingVisualizationProps> = ({
       </div>
       
       <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-        {thoughts.map((thought, index) => (
-          <div 
-            key={index}
-            className={cn(
-              "p-3 rounded border text-sm animate-fade-in-down",
-              getThoughtBgClass(thought.type),
-              index === thoughts.length - 1 && isThinking && "relative overflow-hidden"
-            )}
-          >
-            <div className="flex items-start">
-              <span className="mr-2 mt-0.5">{getThoughtEmoji(thought.type)}</span>
-              <span>{thought.content}</span>
+        {thoughts && thoughts.length > 0 ? thoughts.map((thought, index) => (
+          thought && (  // Add check to ensure thought is defined
+            <div 
+              key={index}
+              className={cn(
+                "p-3 rounded border text-sm animate-fade-in-down",
+                getThoughtBgClass(thought.type),
+                index === thoughts.length - 1 && isThinking && "relative overflow-hidden"
+              )}
+            >
+              <div className="flex items-start">
+                <span className="mr-2 mt-0.5">{getThoughtEmoji(thought.type)}</span>
+                <span>{thought.content}</span>
+              </div>
+              {index === thoughts.length - 1 && isThinking && (
+                <div className="absolute -inset-[1px] -translate-x-full bg-gradient-to-r from-transparent via-agent-primary/20 to-transparent animate-shimmer" />
+              )}
             </div>
-            {index === thoughts.length - 1 && isThinking && (
-              <div className="absolute -inset-[1px] -translate-x-full bg-gradient-to-r from-transparent via-agent-primary/20 to-transparent animate-shimmer" />
+          )
+        )) : (
+          <>
+            {isThinking && (
+              <div className="p-3 rounded bg-agent-muted bg-opacity-40 border border-agent-border text-sm flex justify-center items-center h-20">
+                <span>Starting to think...</span>
+              </div>
             )}
-          </div>
-        ))}
-        
-        {thoughts.length === 0 && isThinking && (
-          <div className="p-3 rounded bg-agent-muted bg-opacity-40 border border-agent-border text-sm flex justify-center items-center h-20">
-            <span>Starting to think...</span>
-          </div>
-        )}
-        
-        {thoughts.length === 0 && !isThinking && (
-          <div className="p-3 text-sm text-agent-foreground/70 flex justify-center items-center h-full">
-            <span>Agent will show its thinking process here</span>
-          </div>
+            
+            {!isThinking && (
+              <div className="p-3 text-sm text-agent-foreground/70 flex justify-center items-center h-full">
+                <span>Agent will show its thinking process here</span>
+              </div>
+            )}
+          </>
         )}
         
         <div ref={thoughtsEndRef} />
