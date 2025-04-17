@@ -373,15 +373,7 @@ Would you like a deeper analysis of any specific area from this report?`
               ...prev, 
               { 
                 role: 'agent', 
-                content: `I've processed your request: "${message}". 
-                
-I can help you with various types of analyses, such as:
-- Product classification and analysis
-- Market research and trends
-- Data pattern recognition
-- Competitive insights
-
-Would you like to try a specific type of analysis? You can try "Classify Hair Care Products based on ingredient, description, product hierarchy, and perform analysis" as an example.` 
+                content: `I've processed your request: "${message}".\n\nI can help you with various types of analyses, such as:\n- Product classification and analysis\n- Market research and trends\n- Data pattern recognition\n- Competitive insights\n\nWould you like to try a specific type of analysis? You can try **"Classify Hair Care Products based on ingredient, description, product hierarchy, and perform analysis"** as an example.`
               }
             ]);
             setIsProcessingQuery(false);
