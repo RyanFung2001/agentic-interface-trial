@@ -6,6 +6,7 @@ import ExecutionVisualization, { ExecutionStep } from './ExecutionVisualization'
 import AgentHeader from './AgentHeader';
 import { toast } from '../hooks/use-toast';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+const messagesEndRef = useRef<HTMLDivElement>(null); // Ref for the end of the messages list
 
 const AgentInterface: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessageProps[]>([
@@ -21,12 +22,11 @@ const AgentInterface: React.FC = () => {
   const thoughtTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const executionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (thoughtTimeoutRef.current) clearTimeout(thoughtTimeoutRef.current);
-      if (executionTimeoutRef.current) clearTimeout(executionTimeoutRef.current);
-    };
-  }, []);
+
+   useEffect(() => {
+     // Auto-scroll to the latest message when messages array changes
+     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+   }, [messages]);
 
   const runHairCareScenario = useCallback(() => {
     setCurrentScenario('haircare');
@@ -418,7 +418,7 @@ You can try "Classify Hair Care Products based on ingredient, description, produ
       
       <div className="flex flex-1 overflow-hidden">
         <div className="flex flex-col w-full lg:w-2/5 border-r border-agent-border">
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          <div className="flex-1 overflow-y-auto p-4 space-y-2" ref={messagesEndRef}>
             {messages.map((message, index) => (
               <ChatMessage 
                 key={index}
@@ -426,6 +426,7 @@ You can try "Classify Hair Care Products based on ingredient, description, produ
                 content={message.content}
               />
             ))}
+            <div ref={messagesEndRef} /> {/* Placeholder for scroll target */}
           </div>
           
           <div className="p-4 border-t border-agent-border">
