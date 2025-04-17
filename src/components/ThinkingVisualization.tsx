@@ -1,11 +1,18 @@
 
 import React, { useEffect, useRef } from 'react';
-import { Brain } from 'lucide-react';
+import { Brain, Database, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+export type ThoughtType = 'general' | 'data' | 'crm' | 'analytics';
+
+export interface Thought {
+  content: string;
+  type: ThoughtType;
+}
+
 interface ThinkingVisualizationProps {
-  thoughts: string[];
+  thoughts: Thought[];
   isThinking: boolean;
 }
 
@@ -21,6 +28,51 @@ const ThinkingVisualization: React.FC<ThinkingVisualizationProps> = ({
       thoughtsEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [thoughts]);
+
+  // Get the appropriate icon and color based on thought type
+  const getThoughtIcon = (type: ThoughtType) => {
+    switch(type) {
+      case 'data':
+        return <Database className="h-4 w-4 text-blue-400" />;
+      case 'crm':
+        return <Users className="h-4 w-4 text-purple-400" />;
+      case 'analytics':
+        return <span className="text-sm">📊</span>;
+      case 'general':
+      default:
+        return <Brain className="h-4 w-4 text-agent-primary" />;
+    }
+  };
+
+  // Get emoji based on thought type
+  const getThoughtEmoji = (type: ThoughtType) => {
+    switch(type) {
+      case 'data':
+        return '💾';
+      case 'crm':
+        return '👥';
+      case 'analytics':
+        return '📊';
+      case 'general':
+      default:
+        return '🧠';
+    }
+  };
+
+  // Get background color class based on thought type
+  const getThoughtBgClass = (type: ThoughtType) => {
+    switch(type) {
+      case 'data':
+        return 'bg-blue-500 bg-opacity-10 border-blue-500 border-opacity-20';
+      case 'crm':
+        return 'bg-purple-500 bg-opacity-10 border-purple-500 border-opacity-20';
+      case 'analytics':
+        return 'bg-green-500 bg-opacity-10 border-green-500 border-opacity-20';
+      case 'general':
+      default:
+        return 'bg-agent-muted bg-opacity-60 border-agent-border';
+    }
+  };
 
   return (
     <div className="w-full h-full rounded-lg bg-agent-muted border border-agent-border p-4 overflow-hidden flex flex-col">
@@ -41,11 +93,15 @@ const ThinkingVisualization: React.FC<ThinkingVisualizationProps> = ({
           <div 
             key={index}
             className={cn(
-              "p-3 rounded bg-agent-muted bg-opacity-60 border border-agent-border text-sm animate-fade-in-down",
+              "p-3 rounded border text-sm animate-fade-in-down",
+              getThoughtBgClass(thought.type),
               index === thoughts.length - 1 && isThinking && "relative overflow-hidden"
             )}
           >
-            {thought}
+            <div className="flex items-start">
+              <span className="mr-2 mt-0.5">{getThoughtEmoji(thought.type)}</span>
+              <span>{thought.content}</span>
+            </div>
             {index === thoughts.length - 1 && isThinking && (
               <div className="absolute -inset-[1px] -translate-x-full bg-gradient-to-r from-transparent via-agent-primary/20 to-transparent animate-shimmer" />
             )}

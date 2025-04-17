@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import ChatMessage, { ChatMessageProps } from './ChatMessage';
 import ChatInput from './ChatInput';
-import ThinkingVisualization from './ThinkingVisualization';
+import ThinkingVisualization, { Thought, ThoughtType } from './ThinkingVisualization';
 import ExecutionVisualization, { ExecutionStep } from './ExecutionVisualization';
 import AgentHeader from './AgentHeader';
 import { toast } from '../hooks/use-toast';
@@ -14,7 +14,7 @@ const AgentInterface: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessageProps[]>([
     { role: 'agent', content: 'Hello! I am your agentic AI assistant. How can I help you today?' }
   ]);
-  const [thoughts, setThoughts] = useState<string[]>([]);
+  const [thoughts, setThoughts] = useState<Thought[]>([]);
   const [executionSteps, setExecutionSteps] = useState<ExecutionStep[]>([]);
   const [isThinking, setIsThinking] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
@@ -38,10 +38,10 @@ const AgentInterface: React.FC = () => {
     setThoughts([]);
     
     const initialThoughts = [
-      "Analyzing user request about hair care product classification...",
-      "This requires data analysis based on ingredients, descriptions, product hierarchy...",
-      "I need to check if we have relevant data available in our system.",
-      "Let me execute a data agent to search for relevant datasets."
+      { type: 'general', content: "Analyzing user request about hair care product classification..." },
+      { type: 'general', content: "This requires data analysis based on ingredients, descriptions, product hierarchy..." },
+      { type: 'general', content: "I need to check if we have relevant data available in our system." },
+      { type: 'general', content: "Let me execute a data agent to search for relevant datasets." }
     ];
     
     let thoughtIndex = 0;
@@ -87,9 +87,9 @@ const AgentInterface: React.FC = () => {
           setScenarioStep(2);
           
           const noDataThoughts = [
-            "No direct hair care product data found in our primary database.",
-            "Let me check the AI team's insight bank which might contain previous analyses.",
-            "Querying the AI team blob storage for any relevant classification or tagging results."
+            { type: 'data', content: "No direct hair care product data found in our primary database." },
+            { type: 'general', content: "Let me check the AI team's insight bank which might contain previous analyses." },
+            { type: 'data', content: "Querying the AI team blob storage for any relevant classification or tagging results." }
           ];
           
           let thoughtIndex = 0;
@@ -154,10 +154,10 @@ const AgentInterface: React.FC = () => {
             setScenarioStep(3);
             
             const dataFoundThoughts = [
-              "I found a previous hair care product classification dataset in the AI team's storage.",
-              "The dataset contains product names, ingredients, and tags that categorize each product.",
-              "This looks exactly like what we need for the analysis.",
-              "Would you like to use these results for the analysis you requested?"
+              { type: 'data', content: "I found a previous hair care product classification dataset in the AI team's storage." },
+              { type: 'data', content: "The dataset contains product names, ingredients, and tags that categorize each product." },
+              { type: 'general', content: "This looks exactly like what we need for the analysis." },
+              { type: 'general', content: "Would you like to use these results for the analysis you requested?" }
             ];
             
             let thoughtIndex = 0;
@@ -192,11 +192,11 @@ const AgentInterface: React.FC = () => {
     setScenarioStep(4);
     
     const analyticsThoughts = [
-      "Great, I'll use the existing classification data for analysis.",
-      "Let me query our analytics agent and CRM agent to gather additional insights.",
-      "The analytics agent can provide usage patterns and performance metrics.",
-      "The CRM agent can provide customer feedback and satisfaction data.",
-      "Combining these insights with the classification data will provide actionable recommendations."
+      { type: 'general', content: "Great, I'll use the existing classification data for analysis." },
+      { type: 'general', content: "Let me query our analytics agent and CRM agent to gather additional insights." },
+      { type: 'analytics', content: "The analytics agent can provide usage patterns and performance metrics." },
+      { type: 'crm', content: "The CRM agent can provide customer feedback and satisfaction data." },
+      { type: 'general', content: "Combining these insights with the classification data will provide actionable recommendations." }
     ];
     
     let thoughtIndex = 0;
@@ -355,10 +355,10 @@ Would you like a deeper analysis of any specific area from this report?`
       setThoughts([]);
       
       const thoughtSequence = [
-        "Analyzing user query: \"" + message + "\"",
-        "Identifying key components and user intent...",
-        "This looks like a general query. Let me process it...",
-        "Planning the best approach to respond..."
+        { type: 'general', content: "Analyzing user query: \"" + message + "\"" },
+        { type: 'general', content: "Identifying key components and user intent..." },
+        { type: 'general', content: "This looks like a general query. Let me process it..." },
+        { type: 'general', content: "Planning the best approach to respond..." }
       ];
       
       let thoughtIndex = 0;

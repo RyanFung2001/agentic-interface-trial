@@ -38,6 +38,15 @@ const ExecutionVisualization: React.FC<ExecutionVisualizationProps> = ({
       default: return null;
     }
   };
+
+  const getEmojiByType = (type: ExecutionType) => {
+    switch(type) {
+      case 'code': return '💻';
+      case 'terminal': return '🖥️';
+      case 'web': return '🌐';
+      default: return '▶️';
+    }
+  };
   
   const getStatusColor = (status: ExecutionStep['status']) => {
     switch(status) {
@@ -79,6 +88,7 @@ const ExecutionVisualization: React.FC<ExecutionVisualizationProps> = ({
           >
             <div className="flex items-center justify-between p-2 border-b border-agent-border">
               <div className="flex items-center space-x-2">
+                <span className="mr-1">{getEmojiByType(step.type)}</span>
                 <span className="p-1 rounded bg-agent-muted">{getIconByType(step.type)}</span>
                 <span className="text-xs uppercase font-semibold">{step.type}</span>
               </div>
