@@ -137,19 +137,3 @@
 .animate-pulse-soft {
   animation: pulse-soft 2s infinite;
 }
-.markdown-content p {
-  margin: 0 0 0.5em 0;
-}
-
-.markdown-content ul {
-  margin: 0.5em 0;
-  padding-left: 1.5em;
-}
-
-.markdown-content li {
-  margin-bottom: 0.25em;
-}
-
-.markdown-content strong {
-  font-weight: 700;
-}
