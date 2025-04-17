@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from '@/lib/utils';
+import ReactMarkdown from 'react-markdown';
 
 export type MessageRole = 'user' | 'agent';
 
@@ -49,7 +49,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           "rounded-lg p-3 text-sm",
           isUser ? "bg-agent-muted text-agent-foreground" : "bg-agent-primary bg-opacity-20 text-agent-foreground"
         )}>
-          {content}
+          <ReactMarkdown>{content}</ReactMarkdown>
         </div>
       </div>
     </div>
