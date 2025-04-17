@@ -171,7 +171,7 @@ const AgentInterface: React.FC = () => {
                   ...prev,
                   { 
                     role: 'agent', 
-                    content: "I found an existing hair care product classification dataset in our AI team's storage. It contains product IDs, names, ingredients, and tags that categorize each product based on their properties and functions. Would you like me to use this dataset for further analysis?" 
+                    content: `I found an existing hair care product classification dataset in our AI team's storage. It contains product IDs, names, ingredients, and tags that categorize each product based on their properties and functions. Would you like me to use this dataset for further analysis?`
                   }
                 ]);
                 setIsProcessingQuery(false);
@@ -373,7 +373,18 @@ Would you like a deeper analysis of any specific area from this report?`
               ...prev, 
               { 
                 role: 'agent', 
-                content: `I've processed your request: "${message}".\n\nI can help you with various types of analyses, such as:\n- Product classification and analysis\n- Market research and trends\n- Data pattern recognition\n- Competitive insights\n\nWould you like to try a specific type of analysis? You can try **"Classify Hair Care Products based on ingredient, description, product hierarchy, and perform analysis"** as an example.`
+                content: `I've processed your request: "${message}".
+
+**I can help you with various types of analyses, such as:**
+
+- Product classification and analysis
+- Market research and trends
+- Data pattern recognition
+- Competitive insights
+
+**Would you like to try a specific type of analysis?**
+
+You can try "Classify Hair Care Products based on ingredient, description, product hierarchy, and perform analysis" as an example.`
               }
             ]);
             setIsProcessingQuery(false);
